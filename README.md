@@ -6,7 +6,7 @@
 vagrant up  
 vagrant ssh
 
-####1. Определение алгоритма с наилучшим сжатием
+#### 1. Определение алгоритма с наилучшим сжатием
 
 Смотрим список всех дисков, которые есть в виртуальной машине:
 
@@ -51,7 +51,7 @@ otus4  compression           zle                    local
 
 Скачаем один и тот же текстовый файл во все пулы:
 
-[root@zfs ~]# for i in {1..4}; do wget -P /otus$i https://gutenberg.org/cache/epub/2600/pg2600.converter.log; done
+[root@zfs ~]# for i in {1..4}; do wget -P /otus$i https://gutenberg.org/cache/epub/2600/pg2600.converter.log; done  
 --2024-02-14 10:23:36--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
 Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
 Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
@@ -98,7 +98,7 @@ Saving to: '/otus4/pg2600.converter.log'
 
 Проверим, что файл был скачан во все пулы:
 
-[root@zfs ~]# ls -l /otus*
+[root@zfs ~]# ls -l /otus*  
 /otus1:
 total 22067
 -rw-r--r--. 1 root root 41016061 Feb  2 08:53 pg2600.converter.log
@@ -120,13 +120,13 @@ total 40091
 Проверим, сколько места занимает один и тот же файл в разных пулах
 и проверим степень сжатия файлов:
 
-[root@zfs ~]# zfs list
+[root@zfs ~]# zfs list  
 NAME    USED  AVAIL     REFER  MOUNTPOINT
 otus1  21.6M   330M     21.6M  /otus1
 otus2  17.7M   334M     17.6M  /otus2
 otus3  10.8M   341M     10.7M  /otus3
 otus4  39.2M   313M     39.2M  /otus4
-[root@zfs ~]# zfs get all | grep compressratio | grep -v ref
+[root@zfs ~]# zfs get all | grep compressratio | grep -v ref  
 otus1  compressratio         1.81x                  -
 otus2  compressratio         2.22x                  -
 otus3  compressratio         3.65x                  -
@@ -134,18 +134,18 @@ otus4  compressratio         1.00x                  -
 
 Алгоритм gzip-9 самый эффективный по сжатию.
 
-####2. Определение настроек пула
+#### 2. Определение настроек пула
 
 Скачиваем архив в домашний каталог и разархивируем его:
 
-[root@zfs ~]# tar -xzvf zfs_task1.tar.gz
+[root@zfs ~]# tar -xzvf zfs_task1.tar.gz  
 zpoolexport/
 zpoolexport/filea
 zpoolexport/fileb
 
 Проверим, возможно ли импортировать данный каталог в пул:
 
-[root@zfs ~]# zpool import -d zpoolexport/
+[root@zfs ~]# zpool import -d zpoolexport/  
    pool: otus
      id: 6554193320433390805
   state: ONLINE
@@ -159,8 +159,8 @@ zpoolexport/fileb
 
 Сделаем импорт данного пула к нам в ОС:
 
-[root@zfs ~]# zpool import -d zpoolexport/ otus
-[root@zfs ~]# zpool status
+[root@zfs ~]# zpool import -d zpoolexport/ otus  
+[root@zfs ~]# zpool status  
   pool: otus
  state: ONLINE
   scan: none requested
@@ -230,54 +230,54 @@ errors: No known data errors
 
 - размер хранилища:
 
-[root@zfs ~]# zfs get available otus
+[root@zfs ~]# zfs get available otus  
 NAME  PROPERTY   VALUE  SOURCE
 otus  available  350M   -
-[root@zfs ~]# zfs get used otus
+[root@zfs ~]# zfs get used otus  
 NAME  PROPERTY  VALUE  SOURCE
 otus  used      2.04M  -
 
 - тип pool:
 
-[root@zfs ~]# zfs get type otus
+[root@zfs ~]# zfs get type otus  
 NAME  PROPERTY  VALUE       SOURCE
 otus  type      filesystem  -
-[root@zfs ~]# zfs get readonly otus
+[root@zfs ~]# zfs get readonly otus  
 NAME  PROPERTY  VALUE   SOURCE
 otus  readonly  off     default
 
 - значение recordsize:
 
-[root@zfs ~]# zfs get recordsize otus
+[root@zfs ~]# zfs get recordsize otus  
 NAME  PROPERTY    VALUE    SOURCE
 otus  recordsize  128K     local
 
 - какое сжатие используется:
 
-[root@zfs ~]# zfs get compression otus
+[root@zfs ~]# zfs get compression otus  
 NAME  PROPERTY     VALUE     SOURCE
 otus  compression  zle       local
 
 - какая контрольная сумма используется:
 
-[root@zfs ~]# zfs get checksum otus
+[root@zfs ~]# zfs get checksum otus  
 NAME  PROPERTY  VALUE      SOURCE
 otus  checksum  sha256     local
 
-####3. Работа со снапшотом, поиск сообщения от преподавателя
+#### 3. Работа со снапшотом, поиск сообщения от преподавателя
 
 Скачаем файл, указанный в задании и восстановим файловую систему из снапшота:
 
-[root@zfs ~]# zfs receive otus/test@today < otus_task2.file
+[root@zfs ~]# zfs receive otus/test@today < otus_task2.file  
 
 Ищем в каталоге /otus/test файл с именем “secret_message”:
 
-[root@zfs ~]# find /otus/test -name "secret_message"
+[root@zfs ~]# find /otus/test -name "secret_message"  
 /otus/test/task1/file_mess/secret_message
 
 Смотрим содержимое найденного файла:
 
-[root@zfs ~]# cat /otus/test/task1/file_mess/secret_message
+[root@zfs ~]# cat /otus/test/task1/file_mess/secret_message  
 https://otus.ru/lessons/linux-hl/
 
 
